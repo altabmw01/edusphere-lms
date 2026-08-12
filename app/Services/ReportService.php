@@ -60,19 +60,18 @@ class ReportService
 
     public function teacherStats(int $teacherId): array
     {
-        $courseIds = Course::where('teacher_id', $teacherId)->pluck('id');
+        $batchIds = \App\Models\Batch::where('teacher_id', $teacherId)->pluck('id');
+
+        $totalStudents = \App\Models\CourseEnrollment::whereIn('batch_id', $batchIds)->distinct('user_id')->count('user_id')
+            + \App\Models\BookPurchase::whereIn('batch_id', $batchIds)->distinct('user_id')->count('user_id');
 
         return [
-            'total_courses' => $courseIds->count(),
-            'total_students' => \App\Models\CourseEnrollment::whereIn('course_id', $courseIds)->distinct('user_id')->count('user_id'),
-            'revenue' => \App\Models\OrderItem::where('purchasable_type', Course::class)
-                ->whereIn('purchasable_id', $courseIds)
+            'total_batches' => $batchIds->count(),
+            'total_students' => $totalStudents,
+            'revenue' => \App\Models\OrderItem::whereIn('batch_id', $batchIds)
                 ->whereHas('order', fn ($q) => $q->paid())
                 ->sum('line_total'),
-            'pending_reviews' => \App\Models\Review::whereIn('reviewable_id', $courseIds)
-                ->where('reviewable_type', Course::class)
-                ->pending()
-                ->count(),
+            'total_classes' => \App\Models\BatchClass::whereIn('batch_id', $batchIds)->count(),
         ];
     }
 }

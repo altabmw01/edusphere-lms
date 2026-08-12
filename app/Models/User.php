@@ -42,9 +42,9 @@ class User extends Authenticatable
         return $this->hasOne(TeacherProfile::class);
     }
 
-    public function coursesTaught(): HasMany
+    public function coursesCreated(): HasMany
     {
-        return $this->hasMany(Course::class, 'teacher_id');
+        return $this->hasMany(Course::class, 'created_by');
     }
 
     public function orders(): HasMany
@@ -66,8 +66,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(BookPurchase::class);
     }
-	
-	/** Batches this user teaches (only meaningful when role = teacher). */
+
+    /** Batches this user teaches (only meaningful when role = teacher). */
     public function batches(): HasMany
     {
         return $this->hasMany(Batch::class, 'teacher_id');

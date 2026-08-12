@@ -9,7 +9,7 @@
         <h5 class="mb-0">{{ $course->title }}</h5>
         <span class="text-muted small">{{ $course->sections->count() }} sections &middot; {{ $course->lessons_count }} lessons &middot; {{ duration_for_humans($course->duration_minutes) }} total</span>
     </div>
-    <a href="{{ route('teacher.courses.edit', $course) }}" class="btn btn-outline-brand">Back to Course</a>
+    <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-outline-brand">Back to Course</a>
 </div>
 
 <div class="accordion mb-4" id="curriculumBuilder">
@@ -19,7 +19,7 @@
                 <button class="btn btn-link text-decoration-none fw-semibold p-0" type="button" data-bs-toggle="collapse" data-bs-target="#sec{{ $section->id }}">
                     {{ $section->title }} <span class="text-muted small fw-normal">({{ $section->lessons->count() }} lessons)</span>
                 </button>
-                <form action="{{ route('teacher.courses.curriculum.sections.destroy', [$course, $section]) }}" method="POST" data-confirm="Delete this section and all its lessons?">
+                <form action="{{ route('admin.courses.curriculum.sections.destroy', [$course, $section]) }}" method="POST" data-confirm="Delete this section and all its lessons?">
                     @csrf @method('DELETE')
                     <button class="btn btn-icon-circle text-danger btn-sm"><i class="bi bi-trash3"></i></button>
                 </form>
@@ -36,7 +36,7 @@
                             </span>
                             <div class="d-flex align-items-center gap-2">
                                 <span class="text-muted small">{{ $lesson->duration_minutes }}m</span>
-                                <form action="{{ route('teacher.courses.curriculum.lessons.destroy', [$course, $lesson]) }}" method="POST" data-confirm="Remove this lesson?">
+                                <form action="{{ route('admin.courses.curriculum.lessons.destroy', [$course, $lesson]) }}" method="POST" data-confirm="Remove this lesson?">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-icon-circle btn-sm text-danger"><i class="bi bi-x"></i></button>
                                 </form>
@@ -53,7 +53,7 @@
             <div class="modal-dialog"><div class="modal-content" style="border-radius:var(--radius-lg);">
                 <div class="modal-body p-4">
                     <h6 class="mb-3">Add Lesson to "{{ $section->title }}"</h6>
-                    <form action="{{ route('teacher.courses.curriculum.lessons.store', [$course, $section]) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.courses.curriculum.lessons.store', [$course, $section]) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <x-form.input name="title" label="Lesson Title" required />
                         <x-form.select name="type" label="Lesson Type" :options="['video' => 'Video', 'text' => 'Text', 'pdf' => 'PDF', 'quiz' => 'Quiz']" required />
@@ -79,7 +79,7 @@
 
 <div class="filter-card mb-0" style="max-width:500px;">
     <h6 class="fw-bold mb-3">Add New Section</h6>
-    <form action="{{ route('teacher.courses.curriculum.sections.store', $course) }}" method="POST" class="d-flex gap-2">
+    <form action="{{ route('admin.courses.curriculum.sections.store', $course) }}" method="POST" class="d-flex gap-2">
         @csrf
         <input type="text" name="title" class="form-control form-control-custom" placeholder="e.g. Module 4: Advanced Topics" required>
         <button class="btn btn-brand">Add Section</button>

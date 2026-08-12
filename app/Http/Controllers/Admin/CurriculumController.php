@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
@@ -14,12 +14,12 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class CurriculumController extends Controller
 {
     use AuthorizesRequests;
-    
+
     public function edit(Course $course): View
     {
         $this->authorize('manageCurriculum', $course);
 
-        return view('teacher.courses.curriculum', ['course' => $course->load('sections.lessons')]);
+        return view('admin.courses.curriculum', ['course' => $course->load('sections.lessons')]);
     }
 
     public function storeSection(Request $request, Course $course): RedirectResponse

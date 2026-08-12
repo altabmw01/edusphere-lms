@@ -17,7 +17,7 @@ class CourseRepository implements CourseRepositoryInterface
     {
         $query = $this->model->newQuery()
             ->published()
-            ->with(['category', 'teacher'])
+            ->with(['category'])
             ->search($filters['search'] ?? null);
 
         if (! empty($filters['category_id'])) {
@@ -48,18 +48,10 @@ class CourseRepository implements CourseRepositoryInterface
         return $query->paginate($perPage)->withQueryString();
     }
 
-    public function paginateForTeacher(int $teacherId, int $perPage = 10): LengthAwarePaginator
-    {
-        return $this->model->newQuery()
-            ->where('teacher_id', $teacherId)
-            ->with('category')
-            ->latest()
-            ->paginate($perPage);
-    }
 
     public function paginateAll(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = $this->model->newQuery()->with(['category', 'teacher'])->search($filters['search'] ?? null);
+        $query = $this->model->newQuery()->with(['category'])->search($filters['search'] ?? null);
 
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -70,7 +62,7 @@ class CourseRepository implements CourseRepositoryInterface
 
     public function findBySlug(string $slug): ?Course
     {
-        return $this->model->with(['category', 'teacher.teacherProfile', 'sections.lessons'])
+        return $this->model->with(['category', 'sections.lessons'])
             ->where('slug', $slug)
             ->first();
     }

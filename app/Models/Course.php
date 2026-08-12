@@ -15,7 +15,7 @@ class Course extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'title', 'slug', 'category_id', 'teacher_id', 'thumbnail', 'banner',
+        'title', 'slug', 'category_id', 'created_by', 'thumbnail', 'banner',
         'price', 'discount_price', 'level', 'language', 'duration_minutes',
         'lessons_count', 'has_certificate', 'description', 'requirements',
         'target_audience', 'what_you_will_learn', 'status', 'is_featured',
@@ -48,9 +48,9 @@ class Course extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function teacher(): BelongsTo
+    public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'teacher_id');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function sections(): HasMany
@@ -67,8 +67,8 @@ class Course extends Model
     {
         return $this->hasMany(CourseEnrollment::class);
     }
-	
-	public function batches(): MorphMany
+
+    public function batches(): MorphMany
     {
         return $this->morphMany(Batch::class, 'batchable');
     }

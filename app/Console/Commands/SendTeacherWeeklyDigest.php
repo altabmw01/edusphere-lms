@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Course;
+use App\Models\Batch;
+use App\Models\BatchClass;
+use App\Models\BookPurchase;
 use App\Models\CourseEnrollment;
 use App\Models\OrderItem;
-use App\Models\Review;
 use App\Models\User;
 use App\Notifications\TeacherWeeklyDigestNotification;
 use Illuminate\Console\Command;
@@ -14,7 +15,7 @@ class SendTeacherWeeklyDigest extends Command
 {
     protected $signature = 'lms:teacher-weekly-digest';
 
-    protected $description = 'Email every active teacher a summary of last week\'s enrollments, revenue, and reviews.';
+    protected $description = 'Email every active teacher a summary of last week\'s new batch students, revenue, and class links added.';
 
     public function handle(): int
     {
@@ -22,31 +23,28 @@ class SendTeacherWeeklyDigest extends Command
         $sent = 0;
 
         User::query()->role(User::ROLE_TEACHER)->active()->each(function (User $teacher) use ($since, &$sent) {
-            $courseIds = Course::where('teacher_id', $teacher->id)->pluck('id');
+            $batchIds = Batch::where('teacher_id', $teacher->id)->pluck('id');
 
-            if ($courseIds->isEmpty()) {
+            if ($batchIds->isEmpty()) {
                 return;
             }
 
-            $newEnrollments = CourseEnrollment::whereIn('course_id', $courseIds)
-                ->where('created_at', '>=', $since)
-                ->count();
+            $newStudents = CourseEnrollment::whereIn('batch_id', $batchIds)->where('created_at', '>=', $since)->count()
+                + BookPurchase::whereIn('batch_id', $batchIds)->where('created_at', '>=', $since)->count();
 
-            $weeklyRevenue = (float) OrderItem::whereIn('purchasable_id', $courseIds)
-                ->where('purchasable_type', Course::class)
+            $weeklyRevenue = (float) OrderItem::whereIn('batch_id', $batchIds)
                 ->where('created_at', '>=', $since)
                 ->sum('line_total');
 
-            $newReviews = Review::where('reviewable_type', Course::class)
-                ->whereIn('reviewable_id', $courseIds)
+            $classesAdded = BatchClass::whereIn('batch_id', $batchIds)
                 ->where('created_at', '>=', $since)
                 ->count();
 
-            if ($newEnrollments === 0 && $weeklyRevenue == 0.0 && $newReviews === 0) {
+            if ($newStudents === 0 && $weeklyRevenue == 0.0 && $classesAdded === 0) {
                 return;
             }
 
-            $teacher->notify(new TeacherWeeklyDigestNotification($newEnrollments, $weeklyRevenue, $newReviews));
+            $teacher->notify(new TeacherWeeklyDigestNotification($newStudents, $weeklyRevenue, $classesAdded));
             $sent++;
         });
 

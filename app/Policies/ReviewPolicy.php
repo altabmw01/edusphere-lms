@@ -12,13 +12,12 @@ class ReviewPolicy
         return $user->isAdmin() || $user->isManager();
     }
 
+    /**
+     * Only Admin/Manager can reply. Teachers have no course ownership to check
+     * against anymore — their relationship to a course is only through Batches.
+     */
     public function reply(User $user, Review $review): bool
     {
-        if ($user->isAdmin() || $user->isManager()) {
-            return true;
-        }
-
-        return $user->isTeacher() && $review->reviewable_type === \App\Models\Course::class
-            && $review->reviewable?->teacher_id === $user->id;
+        return $user->isAdmin() || $user->isManager();
     }
 }

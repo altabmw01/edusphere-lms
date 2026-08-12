@@ -12,8 +12,9 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class BatchClassController extends Controller
 {
-	use AuthorizesRequests;
-	
+
+    use AuthorizesRequests;
+
     public function store(Request $request, Batch $batch): RedirectResponse
     {
         $this->authorize('manageClasses', $batch);

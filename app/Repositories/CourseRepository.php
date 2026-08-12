@@ -15,7 +15,7 @@ class CourseRepository implements CourseRepositoryInterface
     ): LengthAwarePaginator {
         $query = Course::query()
             ->where('status', 'published')
-            ->with(['category', 'teacher']);
+            ->with(['category']);
 
         $this->applyFilters($query, $filters);
 
@@ -42,7 +42,7 @@ class CourseRepository implements CourseRepositoryInterface
         int $perPage = 15
     ): LengthAwarePaginator {
         $query = Course::query()
-            ->with(['category', 'teacher']);
+            ->with(['category']);
 
         $this->applyFilters($query, $filters);
 
@@ -55,7 +55,7 @@ class CourseRepository implements CourseRepositoryInterface
     public function findBySlug(string $slug): ?Course
     {
         return Course::query()
-            ->with(['category', 'teacher'])
+            ->with(['category'])
             ->where('slug', $slug)
             ->first();
     }
@@ -87,7 +87,7 @@ class CourseRepository implements CourseRepositoryInterface
         return Course::query()
             ->where('status', 'published')
             ->where('is_featured', true)
-            ->with(['category', 'teacher'])
+            ->with(['category'])
             ->latest('published_at')
             ->limit($limit)
             ->get();
@@ -101,7 +101,7 @@ class CourseRepository implements CourseRepositoryInterface
             ->where('status', 'published')
             ->where('id', '!=', $course->id)
             ->where('category_id', $course->category_id)
-            ->with(['category', 'teacher'])
+            ->with(['category'])
             ->latest('published_at')
             ->limit($limit)
             ->get();

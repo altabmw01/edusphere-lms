@@ -10,8 +10,6 @@ interface CourseRepositoryInterface
 {
     public function paginatePublished(array $filters = [], int $perPage = 9): LengthAwarePaginator;
 
-    public function paginateForTeacher(int $teacherId, int $perPage = 10): LengthAwarePaginator;
-
     public function paginateAll(array $filters = [], int $perPage = 15): LengthAwarePaginator;
 
     public function findBySlug(string $slug): ?Course;

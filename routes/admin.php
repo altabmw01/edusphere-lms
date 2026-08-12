@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\OrderController;
@@ -30,6 +31,14 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::resource('users', UserController::class);
 Route::resource('courses', CourseController::class)->except(['show']);
+
+Route::prefix('courses/{course}/curriculum')->name('courses.curriculum.')->group(function () {
+    Route::get('/', [CurriculumController::class, 'edit'])->name('edit');
+    Route::post('/sections', [CurriculumController::class, 'storeSection'])->name('sections.store');
+    Route::delete('/sections/{section}', [CurriculumController::class, 'destroySection'])->name('sections.destroy');
+    Route::post('/sections/{section}/lessons', [CurriculumController::class, 'storeLesson'])->name('lessons.store');
+    Route::delete('/lessons/{lesson}', [CurriculumController::class, 'destroyLesson'])->name('lessons.destroy');
+});
 Route::resource('books', BookController::class)->except(['show']);
 
 Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');

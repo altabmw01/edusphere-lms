@@ -20,7 +20,7 @@
 
 <div class="table-brand">
     <table class="table mb-0">
-        <thead><tr><th>Course</th><th>Teacher</th><th>Price</th><th>Students</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Course</th><th>Category</th><th>Price</th><th>Students</th><th>Status</th><th></th></tr></thead>
         <tbody>
             @forelse($courses as $course)
                 <tr>
@@ -30,7 +30,7 @@
                             <span>{{ \Illuminate\Support\Str::limit($course->title, 40) }}</span>
                         </div>
                     </td>
-                    <td>{{ $course->teacher?->name }}</td>
+                    <td>{{ $course->category?->name }}</td>
                     <td>{{ money($course->final_price) }}</td>
                     <td>{{ number_format($course->students_count) }}</td>
                     <td><x-status-badge :status="$course->status" /></td>

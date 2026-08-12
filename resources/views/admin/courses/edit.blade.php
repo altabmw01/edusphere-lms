@@ -6,18 +6,21 @@
 @section('content')
 <form method="POST" action="{{ route('admin.courses.update', $course) }}" enctype="multipart/form-data">
     @csrf @method('PUT')
-    @include('partials.forms.course-form', ['course' => $course, 'showTeacherField' => true])
+    @include('partials.forms.course-form', ['course' => $course])
 </form>
 
-@if($course->sections->isNotEmpty())
 <div class="filter-card mt-4">
-    <h6 class="fw-bold mb-3">Curriculum Overview <span class="text-muted small fw-normal">(managed by the course teacher)</span></h6>
-    @foreach($course->sections as $section)
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">Curriculum</h6>
+        <a href="{{ route('admin.courses.curriculum.edit', $course) }}" class="btn btn-brand btn-sm-pill"><i class="bi bi-list-check me-1"></i> Manage Curriculum</a>
+    </div>
+    @forelse($course->sections as $section)
         <div class="mb-2">
             <strong class="small">{{ $section->title }}</strong>
-            <span class="text-muted small">— {{ $section->lessons->count() }} lessons</span>
+            <span class="text-muted small">&mdash; {{ $section->lessons->count() }} lessons</span>
         </div>
-    @endforeach
+    @empty
+        <p class="text-muted small mb-0">No curriculum added yet.</p>
+    @endforelse
 </div>
-@endif
 @endsection

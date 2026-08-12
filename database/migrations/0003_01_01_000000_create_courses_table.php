@@ -13,7 +13,6 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->foreignId('category_id')->constrained()->restrictOnDelete();
-            $table->foreignId('teacher_id')->constrained('users')->restrictOnDelete();
             $table->string('thumbnail')->nullable();
             $table->string('banner')->nullable();
             $table->decimal('price', 10, 2)->default(0);
@@ -36,6 +35,7 @@ return new class extends Migration
             $table->unsignedInteger('rating_count')->default(0);
             $table->unsignedInteger('students_count')->default(0);
             $table->unsignedInteger('sales_count')->default(0);
+			$table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('published_at')->nullable();
             $table->softDeletes();
             $table->timestamps();

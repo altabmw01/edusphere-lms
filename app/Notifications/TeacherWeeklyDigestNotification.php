@@ -12,9 +12,9 @@ class TeacherWeeklyDigestNotification extends Notification implements ShouldQueu
     use Queueable;
 
     public function __construct(
-        protected int $newEnrollments,
+        protected int $newStudents,
         protected float $weeklyRevenue,
-        protected int $newReviews,
+        protected int $classesAdded,
     ) {
     }
 
@@ -28,10 +28,10 @@ class TeacherWeeklyDigestNotification extends Notification implements ShouldQueu
         return (new MailMessage)
             ->subject('Your Weekly EduSphere Teaching Summary')
             ->greeting("Hi {$notifiable->name},")
-            ->line("Here's how your courses performed over the last 7 days:")
-            ->line("New enrollments: {$this->newEnrollments}")
-            ->line('Revenue earned: ' . config('lms.currency_symbol') . number_format($this->weeklyRevenue, 2))
-            ->line("New student reviews: {$this->newReviews}")
+            ->line("Here's how your batches performed over the last 7 days:")
+            ->line("New students assigned to your batches: {$this->newStudents}")
+            ->line('Revenue from your batches: ' . config('lms.currency_symbol') . number_format($this->weeklyRevenue, 2))
+            ->line("Class links you added: {$this->classesAdded}")
             ->action('View Teacher Dashboard', route('teacher.dashboard'))
             ->line('Keep up the great work!');
     }
@@ -39,10 +39,10 @@ class TeacherWeeklyDigestNotification extends Notification implements ShouldQueu
     public function toArray(object $notifiable): array
     {
         return [
-            'new_enrollments' => $this->newEnrollments,
+            'new_students' => $this->newStudents,
             'weekly_revenue' => $this->weeklyRevenue,
-            'new_reviews' => $this->newReviews,
-            'message' => "You had {$this->newEnrollments} new enrollment(s) this week.",
+            'classes_added' => $this->classesAdded,
+            'message' => "You had {$this->newStudents} new student(s) assigned this week.",
         ];
     }
 }

@@ -13,17 +13,17 @@ class CourseSeeder extends Seeder
 {
     public function run(): void
     {
-        $teachers = User::role(User::ROLE_TEACHER)->get();
+        $admin = User::role(User::ROLE_ADMIN)->first();
         $categories = Category::type('course')->get();
         $students = User::role(User::ROLE_STUDENT)->get();
 
-        // 24 fully-fleshed courses spread across every teacher/category.
+        // 24 fully-fleshed courses spread across every category.
         Course::factory()
             ->count(24)
             ->create()
-            ->each(function (Course $course, int $index) use ($teachers, $categories, $students) {
+            ->each(function (Course $course, int $index) use ($admin, $categories, $students) {
                 $course->update([
-                    'teacher_id' => $teachers->random()->id,
+                    'created_by' => $admin->id,
                     'category_id' => $categories->random()->id,
                 ]);
 

@@ -23,7 +23,7 @@ class DashboardController extends Controller
             'monthlySales' => $this->reports->monthlySales(),
             'recentOrders' => Order::with('user')->latest()->limit(8)->get(),
             'latestUsers' => User::latest()->limit(6)->get(),
-            'latestCourses' => Course::with('teacher')->latest()->limit(5)->get(),
+            'latestCourses' => Course::latest()->limit(5)->get(),
             'latestBooks' => Book::latest()->limit(5)->get(),
             'topCourses' => $this->reports->topSellingCourses(),
             'topBooks' => $this->reports->topSellingBooks(),

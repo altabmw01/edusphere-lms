@@ -6,6 +6,6 @@
 @section('content')
 <form method="POST" action="{{ route('admin.courses.store') }}" enctype="multipart/form-data">
     @csrf
-    @include('partials.forms.course-form', ['showTeacherField' => true])
+    @include('partials.forms.course-form')
 </form>
 @endsection

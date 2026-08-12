@@ -20,11 +20,6 @@ class CourseService
         return $this->courses->paginatePublished($filters);
     }
 
-    public function forTeacher(User $teacher): LengthAwarePaginator
-    {
-        return $this->courses->paginateForTeacher($teacher->id);
-    }
-
     public function forAdmin(array $filters): LengthAwarePaginator
     {
         return $this->courses->paginateAll($filters);
@@ -35,9 +30,9 @@ class CourseService
         return $this->courses->findBySlug($slug);
     }
 
-    public function create(array $data, User $teacher, ?UploadedFile $thumbnail = null, ?UploadedFile $banner = null): Course
+    public function create(array $data, User $createdBy, ?UploadedFile $thumbnail = null, ?UploadedFile $banner = null): Course
     {
-        $data['teacher_id'] = $teacher->id;
+        $data['created_by'] = $createdBy->id;
 
         if ($thumbnail) {
             $data['thumbnail'] = $thumbnail->store('courses/thumbnails', 'public');

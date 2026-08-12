@@ -19,7 +19,7 @@ class CourseFactory extends Factory
         return [
             'title' => ucfirst(fake()->words(4, true)),
             'category_id' => Category::factory()->state(['type' => 'course']),
-            'teacher_id' => User::factory()->teacher(),
+            'created_by' => User::factory()->admin(),
             'price' => $price,
             'discount_price' => $hasDiscount ? round($price * fake()->randomFloat(2, 0.55, 0.85)) : null,
             'level' => fake()->randomElement(['beginner', 'intermediate', 'advanced', 'all_levels']),
