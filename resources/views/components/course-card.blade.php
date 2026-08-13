@@ -9,10 +9,6 @@
         @endif
     </div>
     <div class="card-body-custom">
-        <div class="d-flex align-items-center gap-2 mb-2">
-            <img src="{{ $course->teacher?->avatarUrl() }}" width="24" height="24" class="rounded-circle" alt="{{ $course->teacher?->name }}">
-            <span class="small text-muted">{{ $course->teacher?->name }}</span>
-        </div>
         <h3 class="course-title"><a href="{{ route('courses.show', $course->slug) }}">{{ $course->title }}</a></h3>
         <div class="d-flex align-items-center gap-2 small text-muted mb-2">
             <span class="rating-stars">{!! star_rating((float) $course->rating_avg) !!}</span>

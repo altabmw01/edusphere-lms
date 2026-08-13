@@ -37,6 +37,7 @@ Route::prefix('courses/{course}/curriculum')->name('courses.curriculum.')->group
     Route::post('/sections', [CurriculumController::class, 'storeSection'])->name('sections.store');
     Route::delete('/sections/{section}', [CurriculumController::class, 'destroySection'])->name('sections.destroy');
     Route::post('/sections/{section}/lessons', [CurriculumController::class, 'storeLesson'])->name('lessons.store');
+	Route::put('/lessons/{lesson}', [CurriculumController::class, 'updateLesson'])->name('lessons.update');
     Route::delete('/lessons/{lesson}', [CurriculumController::class, 'destroyLesson'])->name('lessons.destroy');
 });
 Route::resource('books', BookController::class)->except(['show']);

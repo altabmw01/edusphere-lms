@@ -20,7 +20,7 @@ class MyCourseController extends Controller
     public function index(): View
     {
         $enrollments = Auth::user()->enrollments()
-            ->with('course.teacher', 'course.category')
+            ->with('course.category')
             ->latest()
             ->paginate(9);
 

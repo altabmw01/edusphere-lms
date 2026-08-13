@@ -58,6 +58,7 @@ return new class extends Migration
             $table->string('title');
             $table->enum('type', ['video', 'text', 'pdf', 'quiz'])->default('video');
             $table->string('content_path')->nullable();
+            $table->string('video_url')->nullable();
             $table->longText('content_text')->nullable();
             $table->unsignedInteger('duration_minutes')->default(0);
             $table->boolean('is_preview')->default(false);

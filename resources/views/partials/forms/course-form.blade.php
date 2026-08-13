@@ -5,16 +5,7 @@
         <div class="filter-card">
             <h6 class="fw-bold mb-3">Basic Information</h6>
             <x-form.input name="title" label="Course Title" :value="$course?->title" required />
-            <div class="row">
-                <div class="col-md-6">
-                    <x-form.select name="category_id" label="Category" :options="$categories->pluck('name', 'id')" :value="$course?->category_id" required />
-                </div>
-                @if($showTeacherField ?? false)
-                <div class="col-md-6">
-                    <x-form.select name="teacher_id" label="Teacher" :options="$teachers->pluck('name', 'id')" :value="$course?->teacher_id" required />
-                </div>
-                @endif
-            </div>
+            <x-form.select name="category_id" label="Category" :options="$categories->pluck('name', 'id')" :value="$course?->category_id" required />
             <x-form.textarea name="description" label="Description" rows="5" :value="$course?->description" required />
             <x-form.textarea name="what_you_will_learn" label="What You Will Learn (one per line)" rows="4" :value="$course?->what_you_will_learn" hint="Each line becomes a checklist item." />
             <x-form.textarea name="requirements" label="Requirements (one per line)" rows="3" :value="$course?->requirements" />

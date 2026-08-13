@@ -38,12 +38,19 @@ class CourseSeeder extends Seeder
                     for ($l = 1; $l <= 4; $l++) {
                         $duration = fake()->numberBetween(8, 35);
                         $totalMinutes += $duration;
+                        $type = fake()->randomElement(['video', 'video', 'video', 'text', 'pdf', 'quiz']);
 
                         $section->lessons()->create([
                             'course_id' => $course->id,
                             'title' => fake()->sentence(4),
-                            'type' => fake()->randomElement(['video', 'video', 'video', 'text', 'pdf', 'quiz']),
-                            'content_text' => fake()->paragraphs(2, true),
+                            'type' => $type,
+                            'video_url' => $type === 'video'
+                                ? fake()->randomElement([
+                                    'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                                    'https://vimeo.com/76979871',
+                                ])
+                                : null,
+                            'content_text' => in_array($type, ['text', 'quiz'], true) ? fake()->paragraphs(2, true) : null,
                             'duration_minutes' => $duration,
                             'is_preview' => $s === 1 && $l === 1,
                             'sort_order' => $l,

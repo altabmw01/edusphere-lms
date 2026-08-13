@@ -23,6 +23,7 @@ Route::get('/faq', [HomeController::class, 'faq'])->name('faq');
 
 Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('courses.show');
+Route::get('/lessons/{lesson}/download', [CourseController::class, 'downloadLesson'])->name('lessons.download');
 
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
 Route::get('/books/{slug}', [BookController::class, 'show'])->name('books.show');

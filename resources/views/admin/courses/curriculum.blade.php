@@ -32,15 +32,29 @@
                                 <i class="bi bi-{{ match($lesson->type) { 'video' => 'play-circle', 'text' => 'file-text', 'pdf' => 'file-earmark-pdf', 'quiz' => 'patch-question', default => 'circle' } }} text-primary-brand me-2"></i>
                                 {{ $lesson->title }}
                                 <span class="badge bg-brand-light text-primary-brand ms-2">{{ ucfirst($lesson->type) }}</span>
+                                @if($lesson->type === 'video' && $lesson->video_platform)<span class="badge bg-secondary ms-1">{{ $lesson->video_platform }}</span>@endif
                                 @if($lesson->is_preview)<span class="badge bg-warning text-dark ms-1">Preview</span>@endif
                             </span>
                             <div class="d-flex align-items-center gap-2">
                                 <span class="text-muted small">{{ $lesson->duration_minutes }}m</span>
+                                <button class="btn btn-icon-circle btn-sm" data-bs-toggle="modal" data-bs-target="#editLessonModal{{ $lesson->id }}"><i class="bi bi-pencil"></i></button>
                                 <form action="{{ route('admin.courses.curriculum.lessons.destroy', [$course, $lesson]) }}" method="POST" data-confirm="Remove this lesson?">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-icon-circle btn-sm text-danger"><i class="bi bi-x"></i></button>
                                 </form>
                             </div>
+                        </div>
+
+                        <div class="modal fade" id="editLessonModal{{ $lesson->id }}" tabindex="-1">
+                            <div class="modal-dialog"><div class="modal-content" style="border-radius:var(--radius-lg);">
+                                <div class="modal-body p-4">
+                                    <h6 class="mb-3">Edit Lesson</h6>
+                                    <form action="{{ route('admin.courses.curriculum.lessons.update', [$course, $lesson]) }}" method="POST" enctype="multipart/form-data">
+                                        @csrf @method('PUT')
+                                        @include('partials.forms.lesson-fields', ['lesson' => $lesson, 'section' => $section])
+                                    </form>
+                                </div>
+                            </div></div>
                         </div>
                     @endforeach
 
@@ -55,19 +69,7 @@
                     <h6 class="mb-3">Add Lesson to "{{ $section->title }}"</h6>
                     <form action="{{ route('admin.courses.curriculum.lessons.store', [$course, $section]) }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <x-form.input name="title" label="Lesson Title" required />
-                        <x-form.select name="type" label="Lesson Type" :options="['video' => 'Video', 'text' => 'Text', 'pdf' => 'PDF', 'quiz' => 'Quiz']" required />
-                        <x-form.input name="duration_minutes" type="number" label="Duration (minutes)" value="10" required />
-                        <div class="mb-3">
-                            <label class="form-label-custom">Upload File (video/PDF)</label>
-                            <input type="file" name="content_file" class="form-control form-control-custom">
-                        </div>
-                        <x-form.textarea name="content_text" label="Text Content (for text lessons)" rows="3" />
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" name="is_preview" value="1" id="preview{{ $section->id }}">
-                            <label class="form-check-label small" for="preview{{ $section->id }}">Free Preview Lesson</label>
-                        </div>
-                        <button class="btn btn-brand w-100">Add Lesson</button>
+                        @include('partials.forms.lesson-fields', ['section' => $section])
                     </form>
                 </div>
             </div></div>
@@ -86,3 +88,22 @@
     </form>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function toggleLessonFields(select) {
+    var uid = select.dataset.uid;
+    var type = select.value;
+    document.querySelectorAll('.lesson-field-video[data-uid="' + uid + '"]').forEach(el => el.classList.toggle('d-none', type !== 'video'));
+    document.querySelectorAll('.lesson-field-pdf[data-uid="' + uid + '"]').forEach(el => el.classList.toggle('d-none', type !== 'pdf'));
+    document.querySelectorAll('.lesson-field-text[data-uid="' + uid + '"]').forEach(el => el.classList.toggle('d-none', type !== 'text' && type !== 'quiz'));
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.lesson-type-select').forEach(function (select) {
+        toggleLessonFields(select);
+        select.addEventListener('change', function () { toggleLessonFields(this); });
+    });
+});
+</script>
+@endpush
