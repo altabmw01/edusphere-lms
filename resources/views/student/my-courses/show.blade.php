@@ -30,8 +30,8 @@
                             @foreach($section->lessons as $lesson)
                                 @php($isDone = in_array($lesson->id, $completedLessonIds))
                                 <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-                                    <span>
-                                        <i class="bi {{ $isDone ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted' }} me-2"></i>
+                                    <span class="cursor-pointer" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#lessonModal{{ $lesson->id }}">
+                                        <i class="bi {{ $isDone ? 'bi-check-circle-fill text-success' : 'bi-play-circle text-primary-brand' }} me-2"></i>
                                         {{ $lesson->title }}
                                         <span class="badge bg-brand-light text-primary-brand ms-2">{{ ucfirst($lesson->type) }}</span>
                                     </span>
@@ -45,9 +45,7 @@
                                         @endunless
                                     </div>
                                 </div>
-                                @if($lesson->content_text)
-                                    <p class="small text-muted mt-2">{{ \Illuminate\Support\Str::limit($lesson->content_text, 200) }}</p>
-                                @endif
+                                <x-lesson-viewer-modal :lesson="$lesson" />
                             @endforeach
                         </div>
                     </div>
@@ -60,7 +58,7 @@
         <div class="filter-card">
             <img src="{{ $course->thumbnail_url }}" class="rounded-3 mb-3 w-100" style="height:140px;object-fit:cover;" alt="{{ $course->title }}">
             <h6 class="mb-1">{{ $course->title }}</h6>
-            <p class="small text-muted mb-3">{{ $course->teacher?->name }}</p>
+            <p class="small text-muted mb-3">{{ $enrollment?->batch?->teacher?->name ?? 'No teacher assigned yet' }}</p>
             <ul class="list-unstyled small text-muted mb-0">
                 <li class="mb-2"><i class="bi bi-collection-play me-2"></i>{{ $course->lessons_count }} lessons</li>
                 <li class="mb-2"><i class="bi bi-clock me-2"></i>{{ duration_for_humans($course->duration_minutes) }}</li>

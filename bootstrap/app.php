@@ -38,6 +38,21 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | CSRF Exceptions
+        |--------------------------------------------------------------------------
+        | SSLCommerz sends POST requests directly to these URLs.
+        | They do not contain Laravel's CSRF token.
+        */
+        $middleware->validateCsrfTokens(except: [
+            'payment/sslcommerz/success',
+            'payment/sslcommerz/fail',
+            'payment/sslcommerz/cancel',
+            'payment/sslcommerz/ipn',
+        ]);
+
         $middleware->web(append: [
             TrackLastLogin::class,
         ]);

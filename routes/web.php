@@ -17,6 +17,17 @@ use Illuminate\Support\Facades\Route;
 | Public Frontend Routes
 |--------------------------------------------------------------------------
 */
+Route::get('/clear', function() {
+    //Artisan::call('key:generate');
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('optimize:clear');
+    Artisan::call('view:clear');
+    Artisan::call('config:cache');
+    dd("Clear All");
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/faq', [HomeController::class, 'faq'])->name('faq');

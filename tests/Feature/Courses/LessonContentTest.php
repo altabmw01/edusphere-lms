@@ -22,7 +22,7 @@ class LessonContentTest extends TestCase
         return CourseSection::create(['course_id' => $course->id, 'title' => 'Section 1', 'sort_order' => 1]);
     }
 
-    public function test_admin_can_add_a_video_lesson_with_a_youtube_link_and_no_file(): void
+    public function test_admin_can_add_a_video_lesson_with_a_youtube_link(): void
     {
         $admin = User::factory()->admin()->create();
         $section = $this->makeSection();
@@ -30,7 +30,7 @@ class LessonContentTest extends TestCase
         $this->actingAs($admin)->post(route('admin.courses.curriculum.lessons.store', [$section->course_id, $section]), [
             'title' => 'Intro Video',
             'type' => 'video',
-            'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            'youtube_input' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
             'duration_minutes' => 10,
         ]);
 
@@ -42,7 +42,55 @@ class LessonContentTest extends TestCase
         $this->assertSame('YouTube', $lesson->video_platform);
     }
 
-    public function test_a_non_youtube_non_vimeo_video_link_is_rejected(): void
+    public function test_admin_can_add_a_video_lesson_with_just_a_youtube_code(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $section = $this->makeSection();
+
+        $this->actingAs($admin)->post(route('admin.courses.curriculum.lessons.store', [$section->course_id, $section]), [
+            'title' => 'Bare Code Video',
+            'type' => 'video',
+            'youtube_input' => 'dQw4w9WgXcQ',
+            'duration_minutes' => 10,
+        ]);
+
+        $lesson = CourseLesson::where('title', 'Bare Code Video')->first();
+        $this->assertSame('https://www.youtube.com/embed/dQw4w9WgXcQ', $lesson->embed_url);
+    }
+
+    public function test_admin_can_add_a_video_lesson_with_a_vimeo_link(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $section = $this->makeSection();
+
+        $this->actingAs($admin)->post(route('admin.courses.curriculum.lessons.store', [$section->course_id, $section]), [
+            'title' => 'Vimeo Lesson',
+            'type' => 'video',
+            'vimeo_input' => 'https://vimeo.com/76979871',
+            'duration_minutes' => 10,
+        ]);
+
+        $lesson = CourseLesson::where('title', 'Vimeo Lesson')->first();
+        $this->assertSame('Vimeo', $lesson->video_platform);
+        $this->assertSame('https://player.vimeo.com/video/76979871', $lesson->embed_url);
+    }
+
+    public function test_a_video_lesson_requires_either_a_youtube_or_vimeo_input(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $section = $this->makeSection();
+
+        $response = $this->actingAs($admin)->post(route('admin.courses.curriculum.lessons.store', [$section->course_id, $section]), [
+            'title' => 'Empty Video',
+            'type' => 'video',
+            'duration_minutes' => 10,
+        ]);
+
+        $response->assertSessionHasErrors('youtube_input');
+        $this->assertDatabaseMissing('course_lessons', ['title' => 'Empty Video']);
+    }
+
+    public function test_a_non_youtube_link_pasted_into_the_youtube_field_is_rejected(): void
     {
         $admin = User::factory()->admin()->create();
         $section = $this->makeSection();
@@ -50,11 +98,11 @@ class LessonContentTest extends TestCase
         $response = $this->actingAs($admin)->post(route('admin.courses.curriculum.lessons.store', [$section->course_id, $section]), [
             'title' => 'Bad Link',
             'type' => 'video',
-            'video_url' => 'https://example.com/some-video.mp4',
+            'youtube_input' => 'https://example.com/some-video.mp4',
             'duration_minutes' => 10,
         ]);
 
-        $response->assertSessionHasErrors('video_url');
+        $response->assertSessionHasErrors('youtube_input');
         $this->assertDatabaseMissing('course_lessons', ['title' => 'Bad Link']);
     }
 
@@ -118,6 +166,30 @@ class LessonContentTest extends TestCase
         $this->assertSame('text', $lesson->type);
         $this->assertSame('Updated lesson content.', $lesson->content_text);
         $this->assertNull($lesson->video_url);
+    }
+
+    public function test_admin_can_edit_a_video_lesson_to_swap_its_youtube_code(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $section = $this->makeSection();
+
+        $lesson = $section->lessons()->create([
+            'course_id' => $section->course_id,
+            'title' => 'Video Lesson',
+            'type' => 'video',
+            'video_url' => 'https://www.youtube.com/watch?v=oldCodeHere1',
+            'duration_minutes' => 8,
+        ]);
+
+        $this->actingAs($admin)->put(route('admin.courses.curriculum.lessons.update', [$section->course_id, $lesson]), [
+            'title' => 'Video Lesson',
+            'type' => 'video',
+            'youtube_input' => 'newCodeHere22',
+            'duration_minutes' => 8,
+        ]);
+
+        $lesson->refresh();
+        $this->assertSame('https://www.youtube.com/watch?v=newCodeHere22', $lesson->video_url);
     }
 
     public function test_a_teacher_cannot_manage_curriculum(): void

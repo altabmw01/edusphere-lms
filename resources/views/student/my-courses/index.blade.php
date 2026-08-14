@@ -14,7 +14,7 @@
                 <div class="card-body-custom">
                     <span class="badge bg-brand-light text-primary-brand mb-2" style="width:fit-content;">{{ $enrollment->progress_percent >= 100 ? 'Completed' : 'In Progress' }}</span>
                     <h3 class="course-title">{{ $enrollment->course->title }}</h3>
-                    <p class="small text-muted mb-2">{{ $enrollment->course->teacher?->name }}</p>
+                    <p class="small text-muted mb-2">{{ $enrollment->batch?->teacher?->name ?? 'No teacher assigned yet' }}</p>
                     <div class="progress progress-thin mb-2"><div class="progress-bar" style="width:{{ $enrollment->progress_percent }}%;"></div></div>
                     <small class="text-muted mb-3">{{ $enrollment->progress_percent }}% complete</small>
                     <div class="mt-2 d-flex gap-2">

@@ -15,7 +15,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class CurriculumController extends Controller
 {
     use AuthorizesRequests;
-    
+	
     public function edit(Course $course): View
     {
         $this->authorize('manageCurriculum', $course);
@@ -119,7 +119,7 @@ class CurriculumController extends Controller
 
     /**
      * Lesson fields are conditional on type:
-     * - video → a YouTube/Vimeo URL (no file upload)
+     * - video → a YouTube link/code OR a Vimeo link/code (exactly one platform)
      * - pdf   → an uploaded PDF file (presence is checked by the caller, since
      *           it's only required on create — an update may keep the existing file)
      * - text  → a text body
@@ -130,11 +130,19 @@ class CurriculumController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'type' => ['required', 'in:video,text,pdf,quiz'],
-            'video_url' => [
-                'nullable', 'required_if:type,video', 'url', 'max:500',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($request->input('type') === 'video' && $value && ! preg_match('/(youtube\.com|youtu\.be|vimeo\.com)/i', $value)) {
-                        $fail('Please enter a valid YouTube or Vimeo link.');
+            'youtube_input' => [
+                'nullable', 'string', 'max:500',
+                function ($attribute, $value, $fail) {
+                    if ($value && preg_match('#^https?://#i', $value) && ! preg_match('/(youtube\.com|youtu\.be)/i', $value)) {
+                        $fail('This doesn\'t look like a valid YouTube link. Paste the full YouTube link, or just the video code.');
+                    }
+                },
+            ],
+            'vimeo_input' => [
+                'nullable', 'string', 'max:500',
+                function ($attribute, $value, $fail) {
+                    if ($value && preg_match('#^https?://#i', $value) && ! preg_match('/vimeo\.com/i', $value)) {
+                        $fail('This doesn\'t look like a valid Vimeo link. Paste the full Vimeo link, or just the video code.');
                     }
                 },
             ],
@@ -142,14 +150,59 @@ class CurriculumController extends Controller
             'content_text' => ['nullable', 'string', 'required_if:type,text'],
             'duration_minutes' => ['required', 'integer', 'min:0'],
             'is_preview' => ['boolean'],
+        ], [], [
+            'youtube_input' => 'YouTube link or code',
+            'vimeo_input' => 'Vimeo link or code',
         ]);
 
         unset($data['content_file']); // never mass-assign the UploadedFile itself; callers handle storage separately
 
         $data['is_preview'] = $request->boolean('is_preview');
-        $data['video_url'] = $data['type'] === 'video' ? $data['video_url'] : null;
         $data['content_text'] = in_array($data['type'], ['text', 'quiz'], true) ? $data['content_text'] : null;
 
+        $data['video_url'] = $data['type'] === 'video'
+            ? $this->resolveVideoUrl($data['youtube_input'] ?? null, $data['vimeo_input'] ?? null)
+            : null;
+
+        unset($data['youtube_input'], $data['vimeo_input']);
+
         return $data;
+    }
+
+    /**
+     * Builds a canonical video_url from whichever of the two inputs was filled
+     * in — each accepts either a full platform link or just the bare video
+     * code/ID. YouTube is used if both happen to be filled in.
+     *
+     * @throws \Illuminate\Validation\ValidationException if neither is provided
+     */
+    protected function resolveVideoUrl(?string $youtubeInput, ?string $vimeoInput): string
+    {
+        $youtubeInput = trim((string) $youtubeInput);
+        $vimeoInput = trim((string) $vimeoInput);
+
+        if ($youtubeInput !== '') {
+            if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/', $youtubeInput, $m)) {
+                $id = $m[1];
+            } else {
+                $id = $youtubeInput; // treat as a bare video code
+            }
+
+            return "https://www.youtube.com/watch?v={$id}";
+        }
+
+        if ($vimeoInput !== '') {
+            if (preg_match('/vimeo\.com\/(?:video\/)?(\d+)/', $vimeoInput, $m)) {
+                $id = $m[1];
+            } else {
+                $id = $vimeoInput; // treat as a bare video code
+            }
+
+            return "https://vimeo.com/{$id}";
+        }
+
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'youtube_input' => 'Please provide a YouTube link/code or a Vimeo link/code for this video lesson.',
+        ]);
     }
 }

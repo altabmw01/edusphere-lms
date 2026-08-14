@@ -21,10 +21,6 @@
                     <span><span class="rating-stars">{!! star_rating((float) $course->rating_avg) !!}</span> {{ number_format($course->rating_avg, 1) }} ({{ $course->rating_count }} ratings)</span>
                     <span><i class="bi bi-people me-1"></i> {{ number_format($course->students_count) }} students</span>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <img src="{{ $course->teacher?->avatarUrl() }}" width="40" height="40" class="rounded-circle" alt="{{ $course->teacher?->name }}">
-                    <span>Created by <strong>{{ $course->teacher?->name }}</strong></span>
-                </div>
             </div>
             <div class="col-lg-5" data-aos="fade-left">
                 <div class="course-card">
@@ -95,14 +91,19 @@
                                 <div id="sec{{ $section->id }}" class="accordion-collapse collapse {{ $loop->first ? 'show' : '' }}" data-bs-parent="#curriculumAccordion">
                                     <div class="accordion-body p-3">
                                         @foreach($section->lessons as $lesson)
-                                            <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                                            @php($accessible = $lesson->is_preview || $isEnrolled)
+                                            <div class="d-flex align-items-center justify-content-between py-2 border-bottom {{ $accessible ? 'cursor-pointer' : '' }}"
+                                                 @if($accessible) style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#lessonModal{{ $lesson->id }}" @endif>
                                                 <span>
-                                                    <i class="bi {{ $lesson->is_preview || $isEnrolled ? 'bi-play-circle text-primary-brand' : 'bi-lock text-muted' }} me-2"></i>
+                                                    <i class="bi {{ $accessible ? 'bi-play-circle text-primary-brand' : 'bi-lock text-muted' }} me-2"></i>
                                                     {{ $lesson->title }}
                                                     @if($lesson->is_preview)<span class="badge bg-brand-light text-primary-brand ms-2">Preview</span>@endif
                                                 </span>
                                                 <span class="text-muted small">{{ $lesson->duration_minutes }}m</span>
                                             </div>
+                                            @if($accessible)
+                                                <x-lesson-viewer-modal :lesson="$lesson" />
+                                            @endif
                                         @endforeach
                                     </div>
                                 </div>
@@ -171,12 +172,14 @@
 
             <div class="col-lg-4">
                 <div class="filter-card" data-aos="fade-up">
-                    <h6 class="fw-bold">Instructor</h6>
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <img src="{{ $course->teacher?->avatarUrl() }}" class="avatar-md" alt="{{ $course->teacher?->name }}">
-                        <div><h6 class="mb-0">{{ $course->teacher?->name }}</h6><small class="text-muted">{{ $course->teacher?->teacherProfile?->headline }}</small></div>
-                    </div>
-                    <p class="small text-muted mb-0">{{ \Illuminate\Support\Str::limit($course->teacher?->bio, 160) }}</p>
+                    <h6 class="fw-bold mb-3">Course Details</h6>
+                    <ul class="list-unstyled small text-muted mb-0">
+                        <li class="mb-2"><i class="bi bi-bar-chart me-2"></i>Level: {{ ucfirst(str_replace('_', ' ', $course->level)) }}</li>
+                        <li class="mb-2"><i class="bi bi-translate me-2"></i>Language: {{ $course->language }}</li>
+                        <li class="mb-2"><i class="bi bi-collection-play me-2"></i>{{ $course->lessons_count }} lessons</li>
+                        <li class="mb-2"><i class="bi bi-clock me-2"></i>{{ duration_for_humans($course->duration_minutes) }}</li>
+                        @if($course->published_at)<li><i class="bi bi-calendar3 me-2"></i>Published {{ $course->published_at->format('M Y') }}</li>@endif
+                    </ul>
                 </div>
             </div>
         </div>

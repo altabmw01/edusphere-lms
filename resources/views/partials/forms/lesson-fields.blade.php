@@ -15,9 +15,22 @@
 
 <x-form.input name="duration_minutes" type="number" label="Duration (minutes)" :value="$lesson?->duration_minutes ?? 10" required />
 
-{{-- Video: YouTube/Vimeo URL only, no upload --}}
+{{-- Video: separate YouTube / Vimeo fields — admin fills in whichever platform applies.
+     Accepts either a full link or just the bare video code/ID. --}}
 <div class="lesson-field-video" data-uid="{{ $uid }}">
-    <x-form.input name="video_url" type="url" label="YouTube or Vimeo Link" :value="$lesson?->video_url" placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..." />
+    <x-form.input
+        name="youtube_input"
+        label="YouTube Video Link or Code"
+        :value="$lesson?->video_platform === 'YouTube' ? $lesson?->video_url : null"
+        placeholder="https://www.youtube.com/watch?v=... or just the video code"
+    />
+    <x-form.input
+        name="vimeo_input"
+        label="Vimeo Video Link or Code"
+        :value="$lesson?->video_platform === 'Vimeo' ? $lesson?->video_url : null"
+        placeholder="https://vimeo.com/... or just the video code"
+        hint="Fill in only one of YouTube or Vimeo, whichever platform this video is on."
+    />
 </div>
 
 {{-- PDF: file upload --}}
