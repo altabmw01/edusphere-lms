@@ -28,12 +28,10 @@ class CouponTest extends TestCase
 
         $this->actingAs($user)->post('/cart', ['type' => 'course', 'id' => $course->id]);
 
-        $response = $this->actingAs($user)->post('/checkout', [
+        $response = $this->actingAs($user)->post('/checkout/course', [
             'billing_name' => 'Jane Learner',
             'billing_email' => 'jane@example.com',
             'billing_phone' => '+15550001111',
-            'country' => 'United States',
-            'address' => '123 Main St',
             'payment_method' => 'cod',
             'coupon_code' => $coupon->code,
         ]);
@@ -59,12 +57,10 @@ class CouponTest extends TestCase
         $this->actingAs($user)->post('/cart', ['type' => 'course', 'id' => $course->id]);
 
         $order = null;
-        $this->actingAs($user)->post('/checkout', [
+        $this->actingAs($user)->post('/checkout/course', [
             'billing_name' => 'Jane Learner',
             'billing_email' => 'jane@example.com',
             'billing_phone' => '+15550001111',
-            'country' => 'United States',
-            'address' => '123 Main St',
             'payment_method' => 'cod',
             'coupon_code' => $coupon->code,
         ]);
@@ -94,12 +90,10 @@ class CouponTest extends TestCase
         $course = Course::factory()->create(['price' => 100]);
         $this->actingAs($user)->post('/cart', ['type' => 'course', 'id' => $course->id]);
 
-        $this->actingAs($user)->post('/checkout', [
+        $this->actingAs($user)->post('/checkout/course', [
             'billing_name' => 'Jane Learner',
             'billing_email' => 'jane@example.com',
             'billing_phone' => '+15550001111',
-            'country' => 'United States',
-            'address' => '123 Main St',
             'payment_method' => 'cod',
             'coupon_code' => $coupon->code,
         ]);

@@ -226,6 +226,47 @@ class LessonContentTest extends TestCase
         $this->get(route('lessons.download', $lesson))->assertOk();
     }
 
+    public function test_guest_can_view_a_free_preview_pdf_lesson_inline(): void
+    {
+        Storage::fake('public');
+        $course = Course::factory()->create();
+        $section = CourseSection::create(['course_id' => $course->id, 'title' => 'S1', 'sort_order' => 1]);
+        $path = Storage::disk('public')->putFile('courses/lessons', UploadedFile::fake()->create('preview.pdf'));
+
+        $lesson = $section->lessons()->create([
+            'course_id' => $course->id,
+            'title' => 'Free Sample',
+            'type' => 'pdf',
+            'content_path' => $path,
+            'duration_minutes' => 5,
+            'is_preview' => true,
+        ]);
+
+        $response = $this->get(route('lessons.view', $lesson));
+        $response->assertOk();
+        $response->assertHeader('content-disposition');
+        $this->assertStringNotContainsString('attachment', $response->headers->get('content-disposition'));
+    }
+
+    public function test_guest_cannot_view_a_locked_pdf_lesson_inline(): void
+    {
+        Storage::fake('public');
+        $course = Course::factory()->create();
+        $section = CourseSection::create(['course_id' => $course->id, 'title' => 'S1', 'sort_order' => 1]);
+        $path = Storage::disk('public')->putFile('courses/lessons', UploadedFile::fake()->create('locked.pdf'));
+
+        $lesson = $section->lessons()->create([
+            'course_id' => $course->id,
+            'title' => 'Locked Lesson',
+            'type' => 'pdf',
+            'content_path' => $path,
+            'duration_minutes' => 5,
+            'is_preview' => false,
+        ]);
+
+        $this->get(route('lessons.view', $lesson))->assertForbidden();
+    }
+
     public function test_guest_cannot_download_a_locked_pdf_lesson(): void
     {
         Storage::fake('public');

@@ -4,7 +4,11 @@ namespace App\Http\Requests\Checkout;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PlaceOrderRequest extends FormRequest
+/**
+ * Courses are digital — no shipping address needed at all, just billing
+ * contact info. Quantity is always 1 and never exposed on this form.
+ */
+class PlaceCourseOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,12 +21,6 @@ class PlaceOrderRequest extends FormRequest
             'billing_name' => ['required', 'string', 'max:255'],
             'billing_email' => ['required', 'email', 'max:255'],
             'billing_phone' => ['required', 'string', 'max:30'],
-            'country' => ['required', 'string', 'max:100'],
-            'division' => ['nullable', 'string', 'max:100'],
-            'district' => ['nullable', 'string', 'max:100'],
-            'thana' => ['nullable', 'string', 'max:100'],
-            'address' => ['required', 'string', 'max:255'],
-            'zip' => ['nullable', 'string', 'max:20'],
             'order_notes' => ['nullable', 'string', 'max:1000'],
             'payment_method' => ['required', 'in:cod,sslcommerz'],
             'coupon_code' => ['nullable', 'string', 'max:50'],

@@ -36,7 +36,13 @@
                 {{ $order->billing_name }}<br>
                 {{ $order->billing_email }}<br>
                 {{ $order->billing_phone }}<br>
-                {{ $order->address }}, {{ $order->district }} {{ $order->country }}
+                @if($order->address){{ $order->address }}@endif 
+                @if($order->union), {{ $order->union }}@endif 
+                @if($order->thana), {{ $order->thana }}@endif 
+                @if($order->district), {{ $order->district }}@endif 
+                @if($order->division), {{ $order->division }}@endif 
+                @if($order->zip), {{ $order->zip }}@endif
+                @if($order->country), {{ $order->country }}@endif
             </td>
             <td width="50%" style="text-align:right;">
                 <strong>Invoice #{{ $order->order_number }}</strong><br>

@@ -27,6 +27,8 @@ class SettingController extends Controller
                 'currency' => setting('currency', 'BDT'),
                 'timezone' => setting('timezone', 'UTC'),
                 'maintenance_mode' => setting('maintenance_mode', false),
+                'shipping_cost_dhaka' => setting('shipping_cost_dhaka', 0),
+                'shipping_cost_outside_dhaka' => setting('shipping_cost_outside_dhaka', 0),
             ],
         ]);
     }
@@ -46,6 +48,8 @@ class SettingController extends Controller
             'currency' => ['required', 'string', 'max:10'],
             'timezone' => ['required', 'string', 'max:60'],
             'maintenance_mode' => ['boolean'],
+            'shipping_cost_dhaka' => ['required', 'numeric', 'min:0'],
+            'shipping_cost_outside_dhaka' => ['required', 'numeric', 'min:0'],
         ]);
 
         if ($request->hasFile('logo')) {

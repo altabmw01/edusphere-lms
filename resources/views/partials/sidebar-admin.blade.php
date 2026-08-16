@@ -8,11 +8,12 @@
     <a class="nav-link {{ $r('admin.courses.*') }}" href="{{ route('admin.courses.index') }}"><i class="bi bi-collection-play"></i> Courses</a>
     <a class="nav-link {{ $r('admin.books.*') }}" href="{{ route('admin.books.index') }}"><i class="bi bi-journal-bookmark"></i> Books</a>
     <a class="nav-link {{ $r('admin.categories.*') }}" href="{{ route('admin.categories.index') }}"><i class="bi bi-tags"></i> Categories</a>
-	<a class="nav-link {{ $r('admin.batches.*') }}" href="{{ route('admin.batches.index') }}"><i class="bi bi-calendar3"></i> Batches</a>
+    <a class="nav-link {{ $r('admin.batches.*') }}" href="{{ route('admin.batches.index') }}"><i class="bi bi-calendar3"></i> Batches</a>
 
     <span class="nav-section-title">Commerce</span>
     <a class="nav-link {{ $r('admin.orders.*') }}" href="{{ route('admin.orders.index') }}"><i class="bi bi-receipt"></i> Orders</a>
     <a class="nav-link {{ $r('admin.coupons.*') }}" href="{{ route('admin.coupons.index') }}"><i class="bi bi-ticket-perforated"></i> Coupons</a>
+    <a class="nav-link {{ $r('admin.countries.*') }}" href="{{ route('admin.countries.index') }}"><i class="bi bi-globe"></i> Countries</a>
     <a class="nav-link {{ $r('admin.reports.*') }}" href="{{ route('admin.reports.index') }}"><i class="bi bi-graph-up"></i> Reports</a>
 
     <span class="nav-section-title">People</span>

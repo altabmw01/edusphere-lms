@@ -101,9 +101,6 @@
                                                 </span>
                                                 <span class="text-muted small">{{ $lesson->duration_minutes }}m</span>
                                             </div>
-                                            @if($accessible)
-                                                <x-lesson-viewer-modal :lesson="$lesson" />
-                                            @endif
                                         @endforeach
                                     </div>
                                 </div>
@@ -196,4 +193,16 @@
         @endif
     </div>
 </section>
+
+{{-- Lesson preview modals are rendered here — deliberately outside any
+     data-aos animated wrapper above. AOS applies a CSS transform to its
+     target element while animating, and any transform on an ancestor breaks
+     a Bootstrap modal's fixed positioning (this was causing the modal to get
+     stuck showing only its backdrop). --}}
+@foreach($course->sections as $section)
+    @foreach($section->lessons as $lesson)
+        @continue(! ($lesson->is_preview || $isEnrolled))
+        <x-lesson-viewer-modal :lesson="$lesson" />
+    @endforeach
+@endforeach
 @endsection

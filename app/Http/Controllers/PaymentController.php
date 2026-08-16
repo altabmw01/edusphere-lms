@@ -84,7 +84,7 @@ class PaymentController extends Controller
         $order = Order::where('order_number', $request->input('tran_id'))->first();
         $order?->update(['payment_status' => 'failed']);
 
-        return redirect()->route('cart.index')->with('status', 'Payment failed. Please try again.');
+        return redirect()->route('courses.index')->with('status', 'Payment failed. Please try again.');
     }
 
     public function cancel(Request $request): RedirectResponse
@@ -92,7 +92,7 @@ class PaymentController extends Controller
         $order = Order::where('order_number', $request->input('tran_id'))->first();
         $order?->update(['status' => 'cancelled', 'cancelled_at' => now()]);
 
-        return redirect()->route('cart.index')->with('status', 'Payment was cancelled.');
+        return redirect()->route('courses.index')->with('status', 'Payment was cancelled.');
     }
 
     /**

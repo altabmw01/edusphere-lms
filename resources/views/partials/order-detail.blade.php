@@ -30,7 +30,14 @@
                 <div class="col-md-6"><strong class="text-dark">Email:</strong> {{ $order->billing_email }}</div>
                 <div class="col-md-6"><strong class="text-dark">Phone:</strong> {{ $order->billing_phone }}</div>
                 <div class="col-md-6"><strong class="text-dark">Country:</strong> {{ $order->country }}</div>
-                <div class="col-12"><strong class="text-dark">Address:</strong> {{ $order->address }} {{ $order->district }} {{ $order->zip }}</div>
+                <div class="col-12"><strong class="text-dark">Address:</strong> 
+                    @if($order->address){{ $order->address }}@endif 
+                    @if($order->union), {{ $order->union }}@endif 
+                    @if($order->thana), {{ $order->thana }}@endif 
+                    @if($order->district), {{ $order->district }}@endif 
+                    @if($order->division), {{ $order->division }}@endif 
+                    @if($order->zip), {{ $order->zip }}@endif
+                </div>
                 @if($order->order_notes)<div class="col-12"><strong class="text-dark">Notes:</strong> {{ $order->order_notes }}</div>@endif
             </div>
         </div>

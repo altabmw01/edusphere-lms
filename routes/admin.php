@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BatchLevelController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContactMessageController;
+use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\CurriculumController;
@@ -37,7 +38,7 @@ Route::prefix('courses/{course}/curriculum')->name('courses.curriculum.')->group
     Route::post('/sections', [CurriculumController::class, 'storeSection'])->name('sections.store');
     Route::delete('/sections/{section}', [CurriculumController::class, 'destroySection'])->name('sections.destroy');
     Route::post('/sections/{section}/lessons', [CurriculumController::class, 'storeLesson'])->name('lessons.store');
-	Route::put('/lessons/{lesson}', [CurriculumController::class, 'updateLesson'])->name('lessons.update');
+    Route::put('/lessons/{lesson}', [CurriculumController::class, 'updateLesson'])->name('lessons.update');
     Route::delete('/lessons/{lesson}', [CurriculumController::class, 'destroyLesson'])->name('lessons.destroy');
 });
 Route::resource('books', BookController::class)->except(['show']);
@@ -48,6 +49,7 @@ Route::put('categories/{category}', [CategoryController::class, 'update'])->name
 Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
 Route::resource('coupons', CouponController::class)->except(['show']);
+Route::resource('countries', CountryController::class)->except(['show', 'create', 'edit']);
 
 Route::get('batch-levels', [BatchLevelController::class, 'index'])->name('batch-levels.index');
 Route::post('batch-levels', [BatchLevelController::class, 'store'])->name('batch-levels.store');

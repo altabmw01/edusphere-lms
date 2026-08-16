@@ -12,175 +12,94 @@ use RuntimeException;
 
 class CartRepository implements CartRepositoryInterface
 {
-    public function getItems(?int $userId, ?string $sessionId): Collection
+    public function __construct(protected CartItem $model)
     {
-        return CartItem::query()
-            ->with('purchasable')
-            ->when(
-                $userId,
-                fn ($query) => $query->where('user_id', $userId)
-            )
-            ->when(
-                !$userId && $sessionId,
-                fn ($query) => $query->where('session_id', $sessionId)
-            )
-            ->get()
-            ->each(function ($item) {
-                $item->line_total = $this->itemPrice($item);
-            });
     }
 
-    public function addItem(
-        ?int $userId,
-        ?string $sessionId,
-        string $type,
-        int $purchasableId
-    ): void {
-        $modelClass = $this->resolvePurchasableType($type);
+    public function getItems(?int $userId, ?string $sessionId): Collection
+    {
+        return $this->model->newQuery()
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->with('purchasable')
+            ->latest()
+            ->get();
+    }
 
-        $purchasable = $modelClass::findOrFail($purchasableId);
+    public function addItem(?int $userId, ?string $sessionId, string $type, int $purchasableId): void
+    {
+        $modelClass = $type === 'book' ? Book::class : Course::class;
 
-        $query = CartItem::query()
+        $exists = $this->model->newQuery()
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->where('purchasable_type', $modelClass)
-            ->where('purchasable_id', $purchasableId);
+            ->where('purchasable_id', $purchasableId)
+            ->exists();
 
-        if ($userId) {
-            $query->where('user_id', $userId);
-        } else {
-            $query->whereNull('user_id')
-                ->where('session_id', $sessionId);
-        }
-
-        $item = $query->first();
-
-        if ($item) {
-            $item->increment('quantity');
+        if ($exists) {
             return;
         }
 
-        CartItem::create([
+        $this->model->create([
             'user_id' => $userId,
             'session_id' => $userId ? null : $sessionId,
             'purchasable_type' => $modelClass,
-            'purchasable_id' => $purchasable->id,
+            'purchasable_id' => $purchasableId,
             'quantity' => 1,
         ]);
     }
 
-    public function removeItem(
-        ?int $userId,
-        ?string $sessionId,
-        int $cartItemId
-    ): void {
-        $query = CartItem::query()
-            ->where('id', $cartItemId);
+    public function removeItem(?int $userId, ?string $sessionId, int $cartItemId): void
+    {
+        $this->model->newQuery()
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->where('id', $cartItemId)
+            ->delete();
+    }
 
-        if ($userId) {
-            $query->where('user_id', $userId);
-        } else {
-            $query->whereNull('user_id')
-                ->where('session_id', $sessionId);
-        }
-
-        $query->delete();
+    public function updateQuantity(?int $userId, ?string $sessionId, int $cartItemId, int $quantity): void
+    {
+        $this->model->newQuery()
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->where('id', $cartItemId)
+            ->update(['quantity' => max(1, $quantity)]);
     }
 
     public function clear(?int $userId, ?string $sessionId): void
     {
-        $query = CartItem::query();
-
-        if ($userId) {
-            $query->where('user_id', $userId);
-        } else {
-            $query->whereNull('user_id')
-                ->where('session_id', $sessionId);
-        }
-
-        $query->delete();
+        $this->model->newQuery()
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->delete();
     }
 
-    public function mergeGuestCartIntoUser(
-        string $sessionId,
-        int $userId
-    ): void {
-        DB::transaction(function () use ($sessionId, $userId) {
-            $guestItems = CartItem::query()
-                ->whereNull('user_id')
-                ->where('session_id', $sessionId)
-                ->get();
+    public function mergeGuestCartIntoUser(string $sessionId, int $userId): void
+    {
+        $guestItems = $this->model->newQuery()->where('session_id', $sessionId)->get();
 
-            foreach ($guestItems as $guestItem) {
-                $existing = CartItem::query()
-                    ->where('user_id', $userId)
-                    ->where(
-                        'purchasable_type',
-                        $guestItem->purchasable_type
-                    )
-                    ->where(
-                        'purchasable_id',
-                        $guestItem->purchasable_id
-                    )
-                    ->first();
+        foreach ($guestItems as $item) {
+            $existing = $this->model->newQuery()
+                ->where('user_id', $userId)
+                ->where('purchasable_type', $item->purchasable_type)
+                ->where('purchasable_id', $item->purchasable_id)
+                ->exists();
 
-                if ($existing) {
-                    $existing->increment(
-                        'quantity',
-                        $guestItem->quantity
-                    );
-
-                    $guestItem->delete();
-                } else {
-                    $guestItem->update([
-                        'user_id' => $userId,
-                        'session_id' => null,
-                    ]);
-                }
+            if ($existing) {
+                $item->delete();
+            } else {
+                $item->update(['user_id' => $userId, 'session_id' => null]);
             }
-        });
-    }
-
-    public function count(
-        ?int $userId,
-        ?string $sessionId
-    ): int {
-        $query = CartItem::query();
-
-        if ($userId) {
-            $query->where('user_id', $userId);
-        } else {
-            $query->whereNull('user_id')
-                ->where('session_id', $sessionId);
         }
-
-        return (int) $query->sum('quantity');
     }
 
-    protected function resolvePurchasableType(string $type): string
+    public function count(?int $userId, ?string $sessionId): int
     {
-        return match (strtolower($type)) {
-            'course' => Course::class,
-            'book' => Book::class,
-            default => throw new RuntimeException(
-                "Unsupported cart item type: {$type}"
-            ),
-        };
-    }
-
-    protected function itemPrice(CartItem $item): float
-    {
-        $product = $item->purchasable;
-
-        if (!$product) {
-            return 0;
-        }
-
-        $price = $product->discount_price
-            ?? $product->price
-            ?? 0;
-
-        return round(
-            (float) $price * (int) $item->quantity,
-            2
-        );
+        return $this->model->newQuery()
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->count();
     }
 }

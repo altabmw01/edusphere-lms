@@ -45,7 +45,6 @@
                                         @endunless
                                     </div>
                                 </div>
-                                <x-lesson-viewer-modal :lesson="$lesson" />
                             @endforeach
                         </div>
                     </div>
@@ -67,4 +66,13 @@
         </div>
     </div>
 </div>
+
+{{-- Lesson modals rendered flat here, outside the accordion/column nesting
+     above, so Bootstrap's fixed-position modal is never trapped inside a
+     constrained ancestor. --}}
+@foreach($course->sections as $section)
+    @foreach($section->lessons as $lesson)
+        <x-lesson-viewer-modal :lesson="$lesson" />
+    @endforeach
+@endforeach
 @endsection

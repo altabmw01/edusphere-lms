@@ -27,10 +27,13 @@ class CheckoutService
      *
      * @param array<int,int> $batchSelections Cart item ID => chosen Batch ID (only for
      *        items whose course/book currently offers selectable upcoming batches).
+     * @param float $shippingCost Pre-calculated shipping cost (books only — courses are
+     *        digital and always pass 0.0). Never trust a client-submitted total; this
+     *        value must already have been computed server-side via ShippingService.
      *
      * @throws \RuntimeException when the cart is empty or a batch selection is invalid
      */
-    public function placeOrder(User $user, array $billing, string $paymentMethod, ?string $couponCode = null, array $batchSelections = []): Order
+    public function placeOrder(User $user, array $billing, string $paymentMethod, ?string $couponCode = null, array $batchSelections = [], float $shippingCost = 0.0): Order
     {
         $items = $this->cartService->items();
 
@@ -52,7 +55,7 @@ class CheckoutService
         }
 
         $tax = round(($subtotal - $discount) * (float) config('lms.tax_percent', 0) / 100, 2);
-        $shipping = 0.00; // Digital products only — no physical shipping cost.
+        $shipping = round($shippingCost, 2);
         $grandTotal = round($subtotal - $discount + $tax + $shipping, 2);
 
         return DB::transaction(function () use ($user, $billing, $paymentMethod, $items, $subtotal, $discount, $tax, $shipping, $grandTotal, $coupon, $resolvedBatches) {

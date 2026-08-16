@@ -57,6 +57,15 @@ class CartRepository implements CartRepositoryInterface
             ->delete();
     }
 
+    public function updateQuantity(?int $userId, ?string $sessionId, int $cartItemId, int $quantity): void
+    {
+        $this->model->newQuery()
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->where('id', $cartItemId)
+            ->update(['quantity' => max(1, $quantity)]);
+    }
+
     public function clear(?int $userId, ?string $sessionId): void
     {
         $this->model->newQuery()

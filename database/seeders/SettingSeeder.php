@@ -22,6 +22,8 @@ class SettingSeeder extends Seeder
             'currency' => config('lms.currency_code', 'BDT'),
             'timezone' => 'UTC',
             'maintenance_mode' => false,
+            'shipping_cost_dhaka' => 60,
+            'shipping_cost_outside_dhaka' => 120,
         ];
 
         foreach ($defaults as $key => $value) {

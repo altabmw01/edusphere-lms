@@ -12,6 +12,8 @@ interface CartRepositoryInterface
 
     public function removeItem(?int $userId, ?string $sessionId, int $cartItemId): void;
 
+    public function updateQuantity(?int $userId, ?string $sessionId, int $cartItemId, int $quantity): void;
+
     public function clear(?int $userId, ?string $sessionId): void;
 
     public function mergeGuestCartIntoUser(string $sessionId, int $userId): void;

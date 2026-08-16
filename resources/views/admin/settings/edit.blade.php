@@ -47,6 +47,13 @@
             </div>
 
             <div class="filter-card">
+                <h6 class="fw-bold mb-3">Book Shipping — Bangladesh</h6>
+                <p class="small text-muted mb-3">Applies only when the customer's shipping district is inside Bangladesh. For every other country, shipping is set per-country under <a href="{{ route('admin.countries.index') }}">Countries</a>.</p>
+                <x-form.input name="shipping_cost_dhaka" type="number" step="0.01" label="Dhaka District ({{ config('lms.currency_symbol') }})" :value="$settings['shipping_cost_dhaka']" required />
+                <x-form.input name="shipping_cost_outside_dhaka" type="number" step="0.01" label="Outside Dhaka ({{ config('lms.currency_symbol') }})" :value="$settings['shipping_cost_outside_dhaka']" required />
+            </div>
+
+            <div class="filter-card">
                 <h6 class="fw-bold mb-3">Mail (SMTP)</h6>
                 <x-form.input name="smtp_host" label="SMTP Host" :value="$settings['smtp_host']" hint="Configure credentials in .env" />
             </div>

@@ -21,7 +21,7 @@
                     @csrf
                     <x-form.input name="name" label="Full Name" required autofocus />
                     <x-form.input name="email" type="email" label="Email Address" required />
-                    <x-form.input name="phone" type="tel" label="Phone Number" />
+                    <x-form.input name="phone" type="tel" label="Phone Number" required />
 
                     <div class="mb-3">
                         <label for="password" class="form-label-custom">Password <span class="text-danger">*</span></label>

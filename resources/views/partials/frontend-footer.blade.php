@@ -18,7 +18,6 @@
                     <li><a href="{{ route('about') }}">About Us</a></li>
                     <li><a href="{{ route('courses.index') }}">Courses</a></li>
                     <li><a href="{{ route('books.index') }}">Books</a></li>
-                    <li><a href="{{ route('faq') }}">FAQ</a></li>
                     <li><a href="{{ route('contact.index') }}">Contact</a></li>
                 </ul>
             </div>
@@ -28,7 +27,6 @@
                     <li><a href="{{ route('contact.index') }}">Help Center</a></li>
                     <li><a href="{{ route('faq') }}">FAQs</a></li>
                     <li><a href="{{ route('login') }}">My Account</a></li>
-                    <li><a href="{{ route('cart.index') }}">Cart</a></li>
                 </ul>
             </div>
             <div class="col-lg-4 col-md-6">

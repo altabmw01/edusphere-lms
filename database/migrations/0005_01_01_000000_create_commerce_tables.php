@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('division')->nullable();
             $table->string('district')->nullable();
             $table->string('thana')->nullable();
+            $table->string('union')->nullable();
             $table->string('address')->nullable();
             $table->string('zip', 20)->nullable();
             $table->text('order_notes')->nullable();

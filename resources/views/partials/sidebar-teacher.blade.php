@@ -5,7 +5,7 @@
     <a class="nav-link {{ $r('teacher.dashboard') }}" href="{{ route('teacher.dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
 
     <span class="nav-section-title">Teaching</span>
-	<a class="nav-link {{ $r('teacher.batches.*') }}" href="{{ route('teacher.batches.index') }}"><i class="bi bi-calendar3"></i> My Batches</a>
+    <a class="nav-link {{ $r('teacher.batches.*') }}" href="{{ route('teacher.batches.index') }}"><i class="bi bi-calendar3"></i> My Batches</a>
     <a class="nav-link {{ $r('teacher.students.*') }}" href="{{ route('teacher.students.index') }}"><i class="bi bi-people"></i> My Students</a>
 
     <span class="nav-section-title">Account</span>

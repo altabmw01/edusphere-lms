@@ -18,13 +18,6 @@
                 <li class="nav-item"><a class="nav-link {{ $r('contact.*') }}" href="{{ route('contact.index') }}">Contact</a></li>
             </ul>
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ route('cart.index') }}" class="btn-icon-circle position-relative" title="Cart" aria-label="Cart">
-                    <i class="bi bi-cart3"></i>
-                    @php($cartCount = cart_count())
-                    @if($cartCount > 0)
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:10px;">{{ $cartCount }}</span>
-                    @endif
-                </a>
 
                 @auth
                     <div class="dropdown">

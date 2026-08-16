@@ -10,7 +10,9 @@
             <div class="modal-body pt-2">
                 @if($lesson->type === 'video' && $lesson->embed_url)
                     <div class="ratio ratio-16x9 rounded-3 overflow-hidden mb-3 bg-dark">
-                        <iframe src="{{ $lesson->embed_url }}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                        {{-- src is intentionally left empty here — set only when the modal opens,
+                             so the video doesn't preload/autoplay for every lesson on page load. --}}
+                        <iframe data-lazy-src="{{ $lesson->embed_url }}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
                     </div>
                     <a href="{{ $lesson->video_url }}" target="_blank" rel="noopener" class="btn btn-outline-brand btn-sm-pill">
                         <i class="bi bi-box-arrow-up-right me-1"></i> Watch on {{ $lesson->video_platform }}
@@ -18,11 +20,14 @@
 
                 @elseif($lesson->type === 'pdf' && $lesson->content_path)
                     <div class="rounded-3 overflow-hidden mb-3 border" style="height: 60vh;">
-                        <iframe src="{{ $lesson->content_url }}" style="width:100%; height:100%; border:0;" title="{{ $lesson->title }}"></iframe>
+                        <iframe data-lazy-src="https://docs.google.com/viewer?url={{ route('lessons.view', $lesson) }}&embedded=true" 
+                                style="width:100%; height:100%; border:0;" 
+                                title="{{ $lesson->title }}"></iframe>
                     </div>
                     <a href="{{ route('lessons.download', $lesson) }}" class="btn btn-brand btn-sm-pill">
                         <i class="bi bi-download me-1"></i> Download PDF
                     </a>
+
 
                 @elseif($lesson->type === 'text' || $lesson->type === 'quiz')
                     <div class="lesson-text-content" style="white-space: pre-line; max-height: 60vh; overflow-y: auto;">

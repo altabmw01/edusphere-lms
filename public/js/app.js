@@ -58,8 +58,8 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
         if (window.bootstrap) new bootstrap.Tooltip(el);
     });
-	
-	// Copy-to-clipboard buttons (data-copy-target="#someInputId")
+
+    // Copy-to-clipboard buttons (data-copy-target="#someInputId")
     document.querySelectorAll('[data-copy-target]').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var target = document.querySelector(this.dataset.copyTarget);
@@ -71,4 +71,33 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // Lazy-loaded modal iframes (lesson video/PDF previews): only fetch the
+    // src once the modal is actually opened, and clear it again on close so
+    // hidden content never auto-loads (or keeps playing) in the background.	
+	
+	document.querySelectorAll('.modal').forEach(function (modalEl) {
+
+        modalEl.addEventListener('shown.bs.modal', function () {
+
+            const iframe = modalEl.querySelector('.lesson-pdf-frame');
+
+            if (iframe && !iframe.src) {
+                iframe.src = iframe.dataset.src;
+            }
+
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', function () {
+
+            const iframe = modalEl.querySelector('.lesson-pdf-frame');
+
+            if (iframe) {
+                iframe.src = '';
+            }
+
+        });
+
+    });
+	
 });

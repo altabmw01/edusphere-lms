@@ -8,6 +8,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Course checkout — digital product, no quantity, no shipping address.
+ * Book checkout (quantity + shipping) is covered separately in BookCheckoutTest.
+ */
 class CheckoutTest extends TestCase
 {
     use RefreshDatabase;
@@ -18,17 +22,15 @@ class CheckoutTest extends TestCase
             'billing_name' => 'Jane Learner',
             'billing_email' => 'jane@example.com',
             'billing_phone' => '+15550001111',
-            'country' => 'United States',
-            'address' => '123 Main St',
             'payment_method' => 'cod',
         ];
     }
 
-    public function test_checkout_redirects_to_cart_when_empty(): void
+    public function test_checkout_redirects_to_browse_courses_when_empty(): void
     {
         $user = User::factory()->student()->create();
 
-        $this->actingAs($user)->get('/checkout')->assertRedirect(route('cart.index'));
+        $this->actingAs($user)->get('/checkout')->assertRedirect(route('courses.index'));
     }
 
     public function test_placing_a_cash_on_delivery_order_creates_the_order_and_enrolls_the_student(): void
@@ -38,7 +40,7 @@ class CheckoutTest extends TestCase
 
         $this->actingAs($user)->post('/cart', ['type' => 'course', 'id' => $course->id]);
 
-        $response = $this->actingAs($user)->post('/checkout', $this->validBillingPayload());
+        $response = $this->actingAs($user)->post('/checkout/course', $this->validBillingPayload());
 
         $order = $user->fresh()->orders()->first();
 
@@ -46,6 +48,7 @@ class CheckoutTest extends TestCase
         $this->assertSame('completed', $order->status);
         $this->assertSame('cod', $order->payment_method);
         $this->assertSame('100.00', number_format($order->grand_total, 2));
+        $this->assertSame('0.00', number_format($order->shipping_total, 2));
         $response->assertRedirect(route('student.orders.show', $order->order_number));
 
         $this->assertTrue(
@@ -60,9 +63,12 @@ class CheckoutTest extends TestCase
     {
         $user = User::factory()->student()->create();
 
-        $response = $this->actingAs($user)->post('/checkout', $this->validBillingPayload());
+        $response = $this->actingAs($user)->post('/checkout/course', $this->validBillingPayload());
 
-        $response->assertRedirect(route('cart.index'));
+        // No cart items exist for this user, so nothing to validate against —
+        // the request still passes basic field validation but placeOrder()
+        // throws on an empty cart, redirecting back to checkout.
+        $response->assertRedirect(route('checkout.index'));
         $this->assertSame(0, $user->orders()->count());
     }
 
@@ -72,9 +78,9 @@ class CheckoutTest extends TestCase
         $course = Course::factory()->create();
         $this->actingAs($user)->post('/cart', ['type' => 'course', 'id' => $course->id]);
 
-        $response = $this->actingAs($user)->post('/checkout', ['payment_method' => 'cod']);
+        $response = $this->actingAs($user)->post('/checkout/course', ['payment_method' => 'cod']);
 
-        $response->assertSessionHasErrors(['billing_name', 'billing_email', 'billing_phone', 'country', 'address']);
+        $response->assertSessionHasErrors(['billing_name', 'billing_email', 'billing_phone']);
     }
 
     public function test_selecting_a_valid_upcoming_batch_assigns_the_student_to_it(): void
@@ -93,7 +99,7 @@ class CheckoutTest extends TestCase
         $this->actingAs($user)->post('/cart', ['type' => 'course', 'id' => $course->id]);
         $cartItemId = $user->cartItems()->first()->id;
 
-        $response = $this->actingAs($user)->post('/checkout', [
+        $response = $this->actingAs($user)->post('/checkout/course', [
             ...$this->validBillingPayload(),
             'batches' => [$cartItemId => $batch->id],
         ]);
@@ -123,7 +129,7 @@ class CheckoutTest extends TestCase
         $this->actingAs($user)->post('/cart', ['type' => 'course', 'id' => $course->id]);
         $cartItemId = $user->cartItems()->first()->id;
 
-        $response = $this->actingAs($user)->post('/checkout', [
+        $response = $this->actingAs($user)->post('/checkout/course', [
             ...$this->validBillingPayload(),
             'batches' => [$cartItemId => $batch->id],
         ]);
@@ -155,7 +161,7 @@ class CheckoutTest extends TestCase
         $this->actingAs($user)->post('/cart', ['type' => 'course', 'id' => $course->id]);
         $cartItemId = $user->cartItems()->first()->id;
 
-        $response = $this->actingAs($user)->post('/checkout', [
+        $response = $this->actingAs($user)->post('/checkout/course', [
             ...$this->validBillingPayload(),
             'batches' => [$cartItemId => $batch->id],
         ]);

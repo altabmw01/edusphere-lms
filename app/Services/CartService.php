@@ -28,6 +28,12 @@ class CartService
         $this->cart->removeItem(Auth::id(), $this->sessionId(), $cartItemId);
     }
 
+    /** Only ever used for book checkout — courses are always quantity 1. */
+    public function updateQuantity(int $cartItemId, int $quantity): void
+    {
+        $this->cart->updateQuantity(Auth::id(), $this->sessionId(), $cartItemId, $quantity);
+    }
+
     public function clear(): void
     {
         $this->cart->clear(Auth::id(), $this->sessionId());
