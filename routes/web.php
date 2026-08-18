@@ -62,6 +62,19 @@ Route::prefix('locations')->name('locations.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| SSLCommerz Callbacks
+|--------------------------------------------------------------------------
+| These routes MUST NOT use auth middleware because SSLCommerz
+| calls them without the Laravel user's session.
+*/
+
+Route::match(['GET', 'POST'], '/payment/sslcommerz/success', [PaymentController::class, 'success'])->name('payment.sslcommerz.success');
+Route::match(['GET', 'POST'], '/payment/sslcommerz/fail', [PaymentController::class, 'fail'])->name('payment.sslcommerz.fail');
+Route::match(['GET', 'POST'], '/payment/sslcommerz/cancel', [PaymentController::class, 'cancel'])->name('payment.sslcommerz.cancel');
+Route::post('/payment/sslcommerz/ipn', [PaymentController::class, 'ipn'])->name('payment.sslcommerz.ipn');
+
+/*
+|--------------------------------------------------------------------------
 | Guest Checkout Identity Gate
 |--------------------------------------------------------------------------
 | A guest who clicks "Add to Cart" lands here first. 'guest' middleware
@@ -92,13 +105,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/book', [CheckoutController::class, 'storeBook'])->name('store.book');
     });
 
-    Route::prefix('payment/sslcommerz')->name('payment.sslcommerz.')->group(function () {
-        Route::get('/init/{order:order_number}', [PaymentController::class, 'init'])->name('init');
-        Route::post('/success', [PaymentController::class, 'success'])->name('success');
-        Route::post('/fail', [PaymentController::class, 'fail'])->name('fail');
-        Route::post('/cancel', [PaymentController::class, 'cancel'])->name('cancel');
-        Route::post('/ipn', [PaymentController::class, 'ipn'])->name('ipn');
-    });
+    // User must be logged in to START a payment
+    Route::get(
+        '/payment/sslcommerz/init/{order:order_number}',
+        [PaymentController::class, 'init']
+    )->middleware('auth')->name('payment.sslcommerz.init');
 
     /*
     |----------------------------------------------------------------
@@ -111,4 +122,15 @@ Route::middleware('auth')->group(function () {
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     });
+});
+
+Route::get('/clear', function() {
+    //Artisan::call('key:generate');
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('optimize:clear');
+    Artisan::call('view:clear');
+    Artisan::call('config:cache');
+    dd("Clear All");
 });

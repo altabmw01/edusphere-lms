@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Review;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\View\View;
 
 class ReviewController extends Controller
 {
+    use AuthorizesRequests;
+    
     public function index(Request $request): View
     {
         $reviews = Review::query()

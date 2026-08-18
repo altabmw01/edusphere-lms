@@ -9,10 +9,13 @@ use App\Models\CourseSection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\View\View;
 
 class CurriculumController extends Controller
 {
+    use AuthorizesRequests;
+    
     public function edit(Course $course): View
     {
         $this->authorize('manageCurriculum', $course);
